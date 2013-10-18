@@ -12,7 +12,7 @@
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
-     limitations under the License.
+     limitations under the License.
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,39 +26,47 @@
 
     <!--
         Requests address-level location access, which is usually
-        necessary for geofencing
+        necessary for geofencing
     -->
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-  	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-  	<uses-permission android:name="android.permission.INTERNET"/>
-
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:allowBackup="true" >
+        android:label="@string/app_name" >
 
         <!-- The app's entry point -->
         <activity
-            android:name="com.example.android.geofence.MainActivity"
+            android:name="com.example.android.geofence.GeofenceListActivity"
             android:label="@string/title_activity_geofence" >
             <intent-filter>
+
                 <!--
                     This activity is triggered when the system
-                    tries to start the app's main activity
+                    tries to start the app's main activity
                 -->
                 <action android:name="android.intent.action.MAIN" />
 
-                <!--
-                    This activity should be linked to the app's Launcher icon
-                 -->
+                <!-- This activity should be linked to the app's Launcher icon -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.example.android.geofence.ReceiveTransitionsIntentService" android:exported="false"></service>
+
+
+        <service
+            android:name="com.example.android.geofence.ReceiveTransitionsIntentService"
+            android:exported="false" >
+        </service>
+
+        <activity
+            android:name="com.example.android.geofence.GeofenceViewActivity"
+            android:label="@string/title_activity_geofence_view" >
+        </activity>
     </application>
 
 </manifest>

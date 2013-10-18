@@ -14,6 +14,8 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -36,7 +38,8 @@ public class GeofenceRequester
                 implements
                     OnAddGeofencesResultListener,
                     ConnectionCallbacks,
-                    OnConnectionFailedListener {
+                    OnConnectionFailedListener,
+                    Parcelable{
 
     // Storage for a reference to the calling client
     private final Activity mActivity;
@@ -46,6 +49,8 @@ public class GeofenceRequester
 
     // Stores the current list of geofences
     private ArrayList<Geofence> mCurrentGeofences;
+    
+    public ArrayList<ParcelableGeofence> mTransportGeofences;
 
     // Stores the current instantiation of the location client
     private LocationClient mLocationClient;
@@ -101,13 +106,39 @@ public class GeofenceRequester
      *
      * @param geofences A List of one or more geofences to add
      */
-    public void addGeofences(List<Geofence> geofences) throws UnsupportedOperationException {
+    public void addGeofences(ArrayList<Geofence> geofences) throws UnsupportedOperationException {
 
         /*
          * Save the geofences so that they can be sent to Location Services once the
          * connection is available.
          */
         mCurrentGeofences = (ArrayList<Geofence>) geofences;
+        // If a request is not already in progress
+        if (!mInProgress) {
+
+            // Toggle the flag and continue
+            mInProgress = true;
+
+            // Request a connection to Location Services
+            requestConnection();
+
+        // If a request is in progress
+        } else {
+
+            // Throw an exception and stop the request
+            throw new UnsupportedOperationException();
+        }
+    }
+    
+    
+    
+    public void addLists(List<ParcelableGeofence> geofences) throws UnsupportedOperationException {
+
+        /*
+         * Save the geofences so that they can be sent to Location Services once the
+         * connection is available.
+         */
+        mTransportGeofences = (ArrayList<ParcelableGeofence>) geofences;
 
         // If a request is not already in progress
         if (!mInProgress) {
@@ -342,4 +373,16 @@ public class GeofenceRequester
             LocalBroadcastManager.getInstance(mActivity).sendBroadcast(errorBroadcastIntent);
         }
     }
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		// TODO Auto-generated method stub
+		
+	}
 }

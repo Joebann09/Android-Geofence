@@ -85,6 +85,9 @@ public final class GeofenceUtils {
 
     public static final String KEY_TRANSITION_TYPE =
             "com.example.android.geofence.KEY_TRANSITION_TYPE";
+    
+    public static final String KEY_GEO_ID =
+    		"com.example.android.geofence.KEY_GEO_ID";
 
     // The prefix for flattened geofence keys
     public static final String KEY_PREFIX =
@@ -120,5 +123,11 @@ public final class GeofenceUtils {
     public static final String EMPTY_STRING = new String();
 
     public static final CharSequence GEOFENCE_ID_DELIMITER = ",";
+    
+    
+    /*
+     * Used to Create Parcelable
+     */
+    public static final String CUSTOM_LISTING = "Stringtest";
 
 }

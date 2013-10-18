@@ -39,6 +39,8 @@ import com.google.android.gms.maps.model.LatLng;
  * the event.
  */
 public class ReceiveTransitionsIntentService extends IntentService {
+	private int numFences;
+	String[] geofenceIds;
 
     /**
      * Sets an identifier for this class' background thread
@@ -46,6 +48,10 @@ public class ReceiveTransitionsIntentService extends IntentService {
     public ReceiveTransitionsIntentService() {
         super("ReceiveTransitionsIntentService");
         Log.d(this.getClass().getName(), "ReceiveTransitionsIntentService()");
+    }
+    
+    public void addFenceNum(int temp){
+    	numFences = temp;
     }
 
     /**
@@ -60,19 +66,15 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
         // Create a local broadcast Intent
         Intent broadcastIntent = new Intent();
-
+        
         // Give it the category for all intents sent by the Intent Service
         broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
-
         // First check for errors
         if (LocationClient.hasError(intent)) {
-
             // Get the error code
             int errorCode = LocationClient.getErrorCode(intent);
-
             // Get the error message
             String errorMessage = LocationServiceErrorMessages.getErrorString(this, errorCode);
-
             // Log the error
             Log.e(GeofenceUtils.APPTAG,
                     getString(R.string.geofence_transition_error_detail, errorMessage)
@@ -87,16 +89,19 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
         // If there's no error, get the transition type and create a notification
         } else {
-
             // Get the type of transition (entry or exit)
             int transition = LocationClient.getGeofenceTransition(intent);
-
             // Test that a valid transition was reported
             if (
                     (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
                     ||
                     (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
                ) {
+            	 List<Geofence> geofences = LocationClient.getTriggeringGeofences(intent);
+                 geofenceIds = new String[geofences.size()];
+                 for (int index = 0; index < geofences.size() ; index++) {
+                     geofenceIds[index] = geofences.get(index).getRequestId();
+                 }
             	
             	if(transition == Geofence.GEOFENCE_TRANSITION_ENTER){
             		sendTransit(getUniqueID(null), 1);
@@ -106,16 +111,11 @@ public class ReceiveTransitionsIntentService extends IntentService {
             	}
 
                 // Post a notification
-                List<Geofence> geofences = LocationClient.getTriggeringGeofences(intent);
-                String[] geofenceIds = new String[geofences.size()];
-                for (int index = 0; index < geofences.size() ; index++) {
-                    geofenceIds[index] = geofences.get(index).getRequestId();
-                }
+               
                 String ids = TextUtils.join(GeofenceUtils.GEOFENCE_ID_DELIMITER,geofenceIds);
                 String transitionType = getTransitionString(transition);
 
                 sendNotification(transitionType, ids);
-
                 // Log the transition type and a message
                 Log.d(GeofenceUtils.APPTAG,
                         getString(
@@ -143,14 +143,14 @@ public class ReceiveTransitionsIntentService extends IntentService {
     private void sendNotification(String transitionType, String ids) {
 
         // Create an explicit content Intent that starts the main Activity
-        Intent notificationIntent =
-                new Intent(getApplicationContext(),MainActivity.class);
-
+    	Intent notificationIntent =
+                new Intent(getApplicationContext(),GeofenceListActivity.class);
+    		notificationIntent.putExtra("checked", "1");
         // Construct a task stack
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
         // Adds the main Activity to the task stack as the parent
-        stackBuilder.addParentStack(MainActivity.class);
+    //    stackBuilder.addParentStack(GeofenceListActivity.class);
 
         // Push the content Intent onto the stack
         stackBuilder.addNextIntent(notificationIntent);
@@ -174,6 +174,8 @@ public class ReceiveTransitionsIntentService extends IntentService {
         NotificationManager mNotificationManager =
             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+        
+        builder.setAutoCancel(true);
         // Issue the notification
         mNotificationManager.notify(0, builder.build());
     }
@@ -234,6 +236,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
 	        return "0000-0000-1111-1111";
 	    }
 	}
+    
 
 	public static String getStringIntegerHexBlocks(int value) {
 	    String result = "";
@@ -261,8 +264,10 @@ public class ReceiveTransitionsIntentService extends IntentService {
 	    return result;
 	}
 	
+	
 	public void sendTransit(String deviceId, int transition) {
-		String url = "http://54.213.80.98:8080/index.html?dID=" + deviceId +"&transition=" + transition + "&location=TwinTowers";
+		for(int i=0; i<geofenceIds.length; i++){
+		String url = "http://54.213.80.98:8080/input.html?dID=" + deviceId +"&transition=" + transition + "&location=" + geofenceIds[i];
 		
         try {
             HttpClient httpClient = new DefaultHttpClient();
@@ -272,5 +277,6 @@ public class ReceiveTransitionsIntentService extends IntentService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+		}
 	}
 }

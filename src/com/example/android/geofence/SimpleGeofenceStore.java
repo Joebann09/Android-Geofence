@@ -16,16 +16,23 @@
 
 package com.example.android.geofence;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Storage for geofence values, implemented in SharedPreferences.
  * For a production app, use a content provider that's synced to the
  * web or loads geofence data based on current location.
  */
-public class SimpleGeofenceStore {
+public class SimpleGeofenceStore implements Parcelable {
+	
+	public List<ParcelableGeofence> mGeofenceList = new ArrayList<ParcelableGeofence>();
 
     // The SharedPreferences object in which geofences are stored
     private final SharedPreferences mPrefs;
@@ -41,7 +48,10 @@ public class SimpleGeofenceStore {
                         SHARED_PREFERENCE_NAME,
                         Context.MODE_PRIVATE);
     }
-
+    
+    public void SetList(){
+    	
+    }
     /**
      * Returns a stored geofence by its id, or returns {@code null}
      * if it's not found.
@@ -50,7 +60,66 @@ public class SimpleGeofenceStore {
      * @return A geofence defined by its center and radius. See
      * {@link SimpleGeofence}
      */
-    public SimpleGeofence getGeofence(String id) {
+    public ParcelableGeofence getGeofence(String id) {
+
+        /*
+         * Get the latitude for the geofence identified by id, or GeofenceUtils.INVALID_VALUE
+         * if it doesn't exist
+         */
+        double lat = mPrefs.getFloat(
+                getGeofenceFieldKey(id, GeofenceUtils.KEY_LATITUDE),
+                GeofenceUtils.INVALID_FLOAT_VALUE);
+
+        /*
+         * Get the longitude for the geofence identified by id, or
+         * -999 if it doesn't exist
+         */
+        double lng = mPrefs.getFloat(
+                getGeofenceFieldKey(id, GeofenceUtils.KEY_LONGITUDE),
+                GeofenceUtils.INVALID_FLOAT_VALUE);
+
+        /*
+         * Get the radius for the geofence identified by id, or GeofenceUtils.INVALID_VALUE
+         * if it doesn't exist
+         */
+        float radius = mPrefs.getFloat(
+                getGeofenceFieldKey(id, GeofenceUtils.KEY_RADIUS),
+                GeofenceUtils.INVALID_FLOAT_VALUE);
+
+        /*
+         * Get the expiration duration for the geofence identified by
+         * id, or GeofenceUtils.INVALID_VALUE if it doesn't exist
+         */
+        long expirationDuration = mPrefs.getLong(
+                getGeofenceFieldKey(id, GeofenceUtils.KEY_EXPIRATION_DURATION),
+                GeofenceUtils.INVALID_LONG_VALUE);
+
+        /*
+         * Get the transition type for the geofence identified by
+         * id, or GeofenceUtils.INVALID_VALUE if it doesn't exist
+         */
+        int transitionType = mPrefs.getInt(
+                getGeofenceFieldKey(id, GeofenceUtils.KEY_TRANSITION_TYPE),
+                GeofenceUtils.INVALID_INT_VALUE);
+
+        // If none of the values is incorrect, return the object
+        if (
+            lat != GeofenceUtils.INVALID_FLOAT_VALUE &&
+            lng != GeofenceUtils.INVALID_FLOAT_VALUE &&
+            radius != GeofenceUtils.INVALID_FLOAT_VALUE &&
+            expirationDuration != GeofenceUtils.INVALID_LONG_VALUE &&
+            transitionType != GeofenceUtils.INVALID_INT_VALUE) {
+
+            // Return a true Geofence object
+            return new ParcelableGeofence(id, lat, lng, radius, expirationDuration, transitionType);
+
+        // Otherwise, return null.
+        } else {
+            return null;
+        }
+    }
+    
+    public SimpleGeofence getGeofences(String id) {
 
         /*
          * Get the latitude for the geofence identified by id, or GeofenceUtils.INVALID_VALUE
@@ -144,9 +213,21 @@ public class SimpleGeofenceStore {
         editor.putInt(
                 getGeofenceFieldKey(id, GeofenceUtils.KEY_TRANSITION_TYPE),
                 geofence.getTransitionType());
+        
 
         // Commit the changes
         editor.commit();
+    }
+    
+    public void setChecked(String id, String value){
+    	Editor editor = mPrefs.edit();
+    	
+    	editor.putString(id, value);
+    	
+    }
+    
+    public String getChecked(String id){  	
+    	return mPrefs.getString(id,"");
     }
 
     public void clearGeofence(String id) {
@@ -178,4 +259,16 @@ public class SimpleGeofenceStore {
                 "_" +
                 fieldName;
     }
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
 }
