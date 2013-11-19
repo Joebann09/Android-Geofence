@@ -1,0 +1,74 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".GeofenceViewActivity" >
+
+    <TextView
+        android:id="@+id/geofenceID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="21dp"
+        android:text="Large Text"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+
+    <TextView
+        android:id="@+id/geofenceLong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/geofenceLat"
+        android:layout_below="@+id/geofenceLat"
+        android:layout_marginTop="20dp"
+        android:text="@string/hello_world" />
+
+    <TextView
+        android:id="@+id/geofenceRad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/geofenceLong"
+        android:layout_below="@+id/geofenceLong"
+        android:layout_marginTop="16dp"
+        android:text="@string/hello_world" />
+
+    <TextView
+        android:id="@+id/geofenceLat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/geofenceID"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="27dp"
+        android:layout_toRightOf="@+id/longLabel"
+        android:text="@string/hello_world" />
+
+    <TextView
+        android:id="@+id/longLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/geofenceRad"
+        android:layout_alignLeft="@+id/radLabel"
+        android:text="Longitude: " />
+
+    <TextView
+        android:id="@+id/radLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/geofenceRad"
+        android:layout_alignBottom="@+id/geofenceRad"
+        android:layout_alignLeft="@+id/geofenceID"
+        android:text="Radius: " />
+
+    <TextView
+        android:id="@+id/latLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/geofenceLong"
+        android:layout_alignLeft="@+id/longLabel"
+        android:text="Latitude: " />
+
+</RelativeLayout>

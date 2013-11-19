@@ -30,7 +30,7 @@ import android.os.Parcelable;
  * For a production app, use a content provider that's synced to the
  * web or loads geofence data based on current location.
  */
-public class SimpleGeofenceStore implements Parcelable {
+public class SimpleGeofenceStore {
 	
 	public List<ParcelableGeofence> mGeofenceList = new ArrayList<ParcelableGeofence>();
 
@@ -39,7 +39,7 @@ public class SimpleGeofenceStore implements Parcelable {
 
     // The name of the resulting SharedPreferences
     private static final String SHARED_PREFERENCE_NAME =
-                    MainActivity.class.getSimpleName();
+                    GeofenceListActivity.class.getSimpleName();
 
     // Create the SharedPreferences storage with private access only
     public SimpleGeofenceStore(Context context) {
@@ -49,9 +49,6 @@ public class SimpleGeofenceStore implements Parcelable {
                         Context.MODE_PRIVATE);
     }
     
-    public void SetList(){
-    	
-    }
     /**
      * Returns a stored geofence by its id, or returns {@code null}
      * if it's not found.
@@ -219,17 +216,13 @@ public class SimpleGeofenceStore implements Parcelable {
         editor.commit();
     }
     
-    public void setChecked(String id, String value){
-    	Editor editor = mPrefs.edit();
-    	
-    	editor.putString(id, value);
-    	
-    }
     
+    public int getCheckedInt(String id){  	
+    	return mPrefs.getInt(getGeofenceFieldKey(id, GeofenceUtils.KEY_LIST),GeofenceUtils.INVALID_INT_VALUE);
+    }
     public String getChecked(String id){  	
     	return mPrefs.getString(id,"");
     }
-
     public void clearGeofence(String id) {
 
         // Remove a flattened geofence object from storage by removing all of its keys
@@ -259,16 +252,14 @@ public class SimpleGeofenceStore implements Parcelable {
                 "_" +
                 fieldName;
     }
+    
+    private String getListFieldKey(String id, String fieldName) {
 
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+        return
+                GeofenceUtils.KEY_LIST +
+                id +
+                "_" +
+                fieldName;
+    }
 
-	@Override
-	public void writeToParcel(Parcel arg0, int arg1) {
-		// TODO Auto-generated method stub
-		
-	}
 }

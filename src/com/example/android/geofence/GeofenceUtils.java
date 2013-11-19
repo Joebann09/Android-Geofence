@@ -92,6 +92,8 @@ public final class GeofenceUtils {
     // The prefix for flattened geofence keys
     public static final String KEY_PREFIX =
             "com.example.android.geofence.KEY";
+    public static final String KEY_LIST =
+            "com.example.android.geofence.KEY_LIST";
 
     // Invalid values, used to test geofence storage when retrieving geofences
     public static final long INVALID_LONG_VALUE = -999l;
