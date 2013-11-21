@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import com.example.android.geofence.GeofenceViewActivity;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -104,10 +105,10 @@ public class ReceiveTransitionsIntentService extends IntentService {
                  }
             	
             	if(transition == Geofence.GEOFENCE_TRANSITION_ENTER){
-            		sendTransit(getUniqueID(null), 1);
+            		sendTransit(getUniqueID(getApplicationContext()), 1);
             	}
             	else{
-            		sendTransit(getUniqueID(null), 0);
+            		sendTransit(getUniqueID(getApplicationContext()), 0);
             	}
 
                 // Post a notification
