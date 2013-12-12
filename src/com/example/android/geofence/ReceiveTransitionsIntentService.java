@@ -1,14 +1,11 @@
 package com.example.android.geofence;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
 import java.util.Arrays;
 import java.util.List;
-import com.example.android.geofence.GeofenceViewActivity;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+
+
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -16,13 +13,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.w3c.dom.Document;
+
 
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -32,7 +30,7 @@ import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.maps.model.LatLng;
+
 
 /**
  * This class receives geofence transition events from Location Services, in the
@@ -42,19 +40,31 @@ import com.google.android.gms.maps.model.LatLng;
 public class ReceiveTransitionsIntentService extends IntentService {
 	private int numFences;
 	String[] geofenceIds;
+	
+
+	  public int onStartCommand(Intent intent, int flags, int startId) {
+	    super.onStartCommand(intent, flags, startId);
+	    Log.v("TESTING SERVICE","TESTING SERVICE");
+	    return(START_REDELIVER_INTENT);
+	  }
+
 
     /**
      * Sets an identifier for this class' background thread
      */
+	
     public ReceiveTransitionsIntentService() {
+    	
         super("ReceiveTransitionsIntentService");
         Log.d(this.getClass().getName(), "ReceiveTransitionsIntentService()");
+        Log.d("TEST", "");
     }
     
     public void addFenceNum(int temp){
     	numFences = temp;
     }
 
+    
     /**
      * Handles incoming intents
      * @param intent The Intent sent by Location Services. This Intent is provided
@@ -64,12 +74,13 @@ public class ReceiveTransitionsIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
     	Log.d(this.getClass().getName(), "onHandleIntent");
     	
-
+    	
         // Create a local broadcast Intent
         Intent broadcastIntent = new Intent();
         
         // Give it the category for all intents sent by the Intent Service
         broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+        Log.d(this.getClass().getName(), "TEST1");
         // First check for errors
         if (LocationClient.hasError(intent)) {
             // Get the error code

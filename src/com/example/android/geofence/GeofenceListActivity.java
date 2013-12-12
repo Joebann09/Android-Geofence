@@ -56,8 +56,11 @@ import android.widget.Toast;
 
 @SuppressLint("NewApi")
 public class GeofenceListActivity extends Activity {
+	public GeofenceListActivity(){
+		
+	}
 	
-    private static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
+    private static final long GEOFENCE_EXPIRATION_IN_HOURS = 168;
     private static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
             GEOFENCE_EXPIRATION_IN_HOURS * DateUtils.HOUR_IN_MILLIS;
     
@@ -144,7 +147,7 @@ public class GeofenceListActivity extends Activity {
         	
         }
         
-        getPreferences(MODE_PRIVATE).edit().putString("","Preference Test 1").commit();
+        getSharedPreferences("Geofencer",MODE_PRIVATE).edit().putString("","Preference Test 1").commit();
 	}
 	
     @Override
@@ -195,7 +198,7 @@ public class GeofenceListActivity extends Activity {
         	 checked = true;
         }
         Log.d("COUNT BEF", "" + count);
-        getPreferences(MODE_PRIVATE).edit().putInt("geofence_list_count", count).commit();
+        getSharedPreferences("Geofencer",MODE_PRIVATE).edit().putInt("geofence_list_count", count).commit();
        
       // 
     }
@@ -203,19 +206,18 @@ public class GeofenceListActivity extends Activity {
     @Override
     protected void onStop(){
     	super.onStop();
-    	 getPreferences(MODE_PRIVATE).edit().putInt("checker", 1).commit();
+    	 getSharedPreferences("Geofencer",MODE_PRIVATE).edit().putInt("checker", 1).commit();
     }
-	
 	
 	
 	public void refillIdList(){
 		
-		int itemCount = mPrefs.getCheckedInt("geofence_list_count");
-		Log.d("COUNT AFT","" + itemCount);
+		int itemCount = getSharedPreferences("Geofencer",MODE_PRIVATE).getInt("geofence_list_count",0);
+		Log.v("COUNT AFT","" + itemCount);
         if(IdList.size()==0){
-        for(int i=0; i < 2; i++){
-        	Log.d("Print", "" + mPrefs.getChecked("List_item_" + i));
-        	IdList.add(getPreferences(MODE_PRIVATE).getString("List_item_" + i, ""));
+        for(int i=0; i < itemCount; i++){
+        	Log.v("Print", "" + getSharedPreferences("Geofencer",MODE_PRIVATE).getString("List_item_" + i, ""));
+        	IdList.add(getSharedPreferences("Geofencer",MODE_PRIVATE).getString("List_item_" + i, ""));
         		
         	}
        }
@@ -336,8 +338,9 @@ public class GeofenceListActivity extends Activity {
         	 mRetrievedGeofence = result;
      		ArrayList<Geofence> geofenceObjs = new ArrayList<Geofence>();     		
     		for (int i = 0; i < result.size(); i++) {
-           	 geofenceObjs.add((result.get(i)).toGeofence());
-             mPrefs.setGeofence(result.get(i).getId(),result.get(i));
+	           	 geofenceObjs.add((result.get(i)).toGeofence());
+	             mPrefs.setGeofence(result.get(i).getId(),result.get(i));
+	             itemCount = result.size();
      		}
     		
         
@@ -359,7 +362,7 @@ public class GeofenceListActivity extends Activity {
         	 for (int i = 0; i < result.size(); ++i) {
      			mId = result.get(i).getId();
      	        IdList.add(mId);
-     	        getPreferences(MODE_PRIVATE).edit().putString("List_item_" + i, mId).commit();
+     	        getSharedPreferences("Geofencer",MODE_PRIVATE).edit().putString("List_item_" + i, mId).commit();
      		}
         	 populateListView(listview);
         }

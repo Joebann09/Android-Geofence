@@ -11,6 +11,7 @@ import com.google.android.gms.location.LocationClient.OnAddGeofencesResultListen
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
@@ -42,7 +43,9 @@ public class GeofenceRequester
                     Parcelable{
 
     // Storage for a reference to the calling client
-    private final Activity mActivity;
+    private Activity mActivity;
+    
+    private  Context mContext;
 
     // Stores the PendingIntent used to send geofence transitions back to the app
     private PendingIntent mGeofencePendingIntent;
@@ -64,6 +67,16 @@ public class GeofenceRequester
     public GeofenceRequester(Activity activityContext) {
         // Save the context
         mActivity = activityContext;
+
+        // Initialize the globals to null
+        mGeofencePendingIntent = null;
+        mLocationClient = null;
+        mInProgress = false;
+    }
+    
+    public GeofenceRequester(Context activityContext) {
+        // Save the context
+        mContext = activityContext;
 
         // Initialize the globals to null
         mGeofencePendingIntent = null;
@@ -165,6 +178,7 @@ public class GeofenceRequester
         getLocationClient().connect();
     }
 
+
     /**
      * Get the current location client, or create a new one if necessary.
      *
@@ -172,12 +186,17 @@ public class GeofenceRequester
      */
     private GooglePlayServicesClient getLocationClient() {
         if (mLocationClient == null) {
-
-            mLocationClient = new LocationClient(mActivity, this, this);
+        	
+        	if(mActivity!=null){
+        		mLocationClient = new LocationClient(mActivity, this, this);
+        	}else{
+        		mLocationClient = new LocationClient(mContext, this, this);
+        	}
         }
         return mLocationClient;
 
     }
+    
     /**
      * Once the connection is available, send a request to add the Geofences
      */
@@ -197,54 +216,70 @@ public class GeofenceRequester
      */
     @Override
     public void onAddGeofencesResult(int statusCode, String[] geofenceRequestIds) {
-
-        // Create a broadcast Intent that notifies other components of success or failure
-        Intent broadcastIntent = new Intent();
-
-        // Temp storage for messages
-        String msg;
-
-        // If adding the geocodes was successful
-        if (LocationStatusCodes.SUCCESS == statusCode) {
-
-            // Create a message containing all the geofence IDs added.
-            msg = mActivity.getString(R.string.add_geofences_result_success,
-                    Arrays.toString(geofenceRequestIds));
-
-            // In debug mode, log the result
-            Log.d(GeofenceUtils.APPTAG, msg);
-
-            // Create an Intent to broadcast to the app
-            broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)
-                           .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
-                           .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, msg);
-        // If adding the geofences failed
-        } else {
-
-            /*
-             * Create a message containing the error code and the list
-             * of geofence IDs you tried to add
-             */
-            msg = mActivity.getString(
-                    R.string.add_geofences_result_failure,
-                    statusCode,
-                    Arrays.toString(geofenceRequestIds)
-            );
-
-            // Log an error
-            Log.e(GeofenceUtils.APPTAG, msg);
-
-            // Create an Intent to broadcast to the app
-            broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCE_ERROR)
-                           .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
-                           .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, msg);
-        }
-
-        // Broadcast whichever result occurred
-        LocalBroadcastManager.getInstance(mActivity).sendBroadcast(broadcastIntent);
-
-        // Disconnect the location client
-        requestDisconnection();
+    	
+    	
+    	
+	        // Create a broadcast Intent that notifies other components of success or failure
+	        Intent broadcastIntent = new Intent();
+	
+	        // Temp storage for messages
+	        String msg;
+	
+	        // If adding the geocodes was successful
+	        if (LocationStatusCodes.SUCCESS == statusCode) {
+	
+	            // Create a message containing all the geofence IDs added.
+	        	if(mActivity!=null){
+	            msg = mActivity.getString(R.string.add_geofences_result_success,
+	                    Arrays.toString(geofenceRequestIds));
+	        	}else{
+	            msg = mContext.getString(R.string.add_geofences_result_success,Arrays.toString(geofenceRequestIds));
+	        	}
+	            // In debug mode, log the result
+	            Log.d(GeofenceUtils.APPTAG, msg);
+	
+	            // Create an Intent to broadcast to the app
+	            broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCES_ADDED)
+	                           .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
+	                           .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, msg);
+	        // If adding the geofences failed
+	        } else {
+	
+	            /*
+	             * Create a message containing the error code and the list
+	             * of geofence IDs you tried to add
+	             */
+	        	if(mActivity!=null){
+	            msg = mActivity.getString(
+	                    R.string.add_geofences_result_failure,
+	                    statusCode,
+	                    Arrays.toString(geofenceRequestIds));
+	        	}else{
+	        		msg = mContext.getString(
+		                    R.string.add_geofences_result_failure,
+		                    statusCode,
+		                    Arrays.toString(geofenceRequestIds));
+	        	}
+	            
+	
+	            // Log an error
+	            Log.e(GeofenceUtils.APPTAG, msg);
+	
+	            // Create an Intent to broadcast to the app
+	            broadcastIntent.setAction(GeofenceUtils.ACTION_GEOFENCE_ERROR)
+	                           .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
+	                           .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, msg);
+	        }
+	
+	        // Broadcast whichever result occurred
+	        if(mActivity!=null){
+	        LocalBroadcastManager.getInstance(mActivity).sendBroadcast(broadcastIntent);
+	        }else{
+	        LocalBroadcastManager.getInstance(mContext).sendBroadcast(broadcastIntent);
+	        }
+	        // Disconnect the location client
+	        requestDisconnection();
+    	
     }
 
     /**
@@ -266,11 +301,14 @@ public class GeofenceRequester
     @Override
     public void onConnected(Bundle arg0) {
         // If debugging, log the connection
-
+    	
+    	if(mActivity!=null){
         Log.d(GeofenceUtils.APPTAG, mActivity.getString(R.string.connected));
+    	}
 
         // Continue adding the geofences
-        continueAddGeofences();
+        	continueAddGeofences();
+
     }
 
     /*
@@ -284,7 +322,9 @@ public class GeofenceRequester
         mInProgress = false;
 
         // In debug mode, log the disconnection
+        if(mActivity!=null){
         Log.d(GeofenceUtils.APPTAG, mActivity.getString(R.string.disconnected));
+        }
 
         // Destroy the current location client
         mLocationClient = null;
@@ -307,23 +347,41 @@ public class GeofenceRequester
 
         // If no PendingIntent exists
         } else {
-
-            // Create an Intent pointing to the IntentService
-            Intent intent = new Intent(mActivity, ReceiveTransitionsIntentService.class);
-            /*
-             * Return a PendingIntent to start the IntentService.
-             * Always create a PendingIntent sent to Location Services
-             * with FLAG_UPDATE_CURRENT, so that sending the PendingIntent
-             * again updates the original. Otherwise, Location Services
-             * can't match the PendingIntent to requests made with it.
-             */
-            return PendingIntent.getService(
-                    mActivity,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+        	
+        	if(mActivity!=null){
+	            // Create an Intent pointing to the IntentService
+	            Intent intent = new Intent(mActivity, ReceiveTransitionsIntentService.class);
+	            /*
+	             * Return a PendingIntent to start the IntentService.
+	             * Always create a PendingIntent sent to Location Services
+	             * with FLAG_UPDATE_CURRENT, so that sending the PendingIntent
+	             * again updates the original. Otherwise, Location Services
+	             * can't match the PendingIntent to requests made with it.
+	             */
+	            return PendingIntent.getService(
+	                    mActivity,
+	                    0,
+	                    intent,
+	                    PendingIntent.FLAG_UPDATE_CURRENT);
+        	}else{
+        		Log.v("INTENT", "ARRIVED AT INTENT CREATION");
+        		Intent intent = new Intent(mContext, ReceiveTransitionsIntentService.class);
+                /*
+                 * Return a PendingIntent to start the IntentService.
+                 * Always create a PendingIntent sent to Location Services
+                 * with FLAG_UPDATE_CURRENT, so that sending the PendingIntent
+                 * again updates the original. Otherwise, Location Services
+                 * can't match the PendingIntent to requests made with it.
+                 */
+                return PendingIntent.getService(
+                        mContext,
+                        0,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+        	}
         }
     }
+    
 
     /*
      * Implementation of OnConnectionFailedListener.onConnectionFailed
