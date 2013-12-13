@@ -34,6 +34,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -60,8 +61,20 @@
 
         <service
             android:name="com.example.android.geofence.ReceiveTransitionsIntentService"
-            android:exported="false" >
+            android:exported="false" 
+            android:enabled="true">
         </service>
+         <service
+            android:name="com.example.android.geofence.restartPendingIntents"
+            android:exported="false" 
+            android:enabled="true">
+        </service>
+        
+        <receiver android:name="com.example.android.geofence.BootCompletedReceiver">  
+				    <intent-filter>  
+				        <action android:name="android.intent.action.BOOT_COMPLETED" />  
+				    </intent-filter>  
+				</receiver>
 
         <activity
             android:name="com.example.android.geofence.GeofenceViewActivity"

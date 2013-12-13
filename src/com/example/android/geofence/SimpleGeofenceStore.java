@@ -45,7 +45,7 @@ public class SimpleGeofenceStore {
     public SimpleGeofenceStore(Context context) {
         mPrefs =
                 context.getSharedPreferences(
-                        SHARED_PREFERENCE_NAME,
+                        "Geofencer",
                         Context.MODE_PRIVATE);
     }
     
